@@ -1,7 +1,7 @@
 {
-  "name": "express_basicAuth",
+  "name": "express_restFiles",
   "version": "1.0.0",
-  "description": "nodejs express_basicAuth",
+  "description": "nodejs express_restFiles",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -9,19 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uthcst/express_basicAuth.git"
+    "url": "git+https://github.com/uthcst/express_restFiles.git"
   },
   "keywords": [
     "nodejs",
-    "hello"
+    "rest files"
   ],
   "author": "uthcst",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/uthcst/express_basicAuth/issues"
+    "url": "https://github.com/uthcst/express_restFiles/issues"
   },
-  "homepage": "https://github.com/uthcst/express_basicAuth#readme",
+  "homepage": "https://github.com/uthcst/express_restFiles#readme",
   "dependencies": {
+    "body-parser": "^1.20.1",
     "express": "^4.18.2"
   }
 }

@@ -1,23 +1,101 @@
 const express = require('express');
+const fs = require("fs");
+const bodyParser = require('body-parser');
 const app = express();
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.port || 4000;
-const users = { 'user1': 'password1', 'user2': 'password2' };
-const isAuthenticated = (req, res, next) => {
-	const encodedAuth = (req.headers.authorization || '')
-		.split(' ')[1] || '';
-	const [name, password] = Buffer.from(encodedAuth, 'base64')
-		.toString().split(':')
-	// Check users credentials and return next if ok
-	if (name && password === users[name]) return next(); 
-	// User is not authenticated give a reponse 401
-	res.set('WWW-Authenticate', 'Basic realm="Access to Index"')
-	res.status(401).send("Unauthorised access")
+
+let aFileName = __dirname + '/www/data/persons.json';
+
+function getPersons(req, res) {
+	fs.readFile(aFileName, function (err, data) {
+		let persons = [[]];
+		if (!err) persons = JSON.parse(data);
+		res.status(200).json(persons);
+	});
 }
+
+function getPerson(req, res) {
+	const id = parseInt(req.params.id)
+	fs.readFile(aFileName, function (err, data) {
+		let persons = [[]];
+		if (!err) persons = JSON.parse(data);
+		res.status(200).json(persons.filter(p => p.id === id));
+	});
+}
+
+function addPerson(req, res) {
+	const { id, name, phone, age } = req.body;
+	const newPerson = {id:parseInt(id), name, phone, age};
+	fs.readFile(aFileName, function (err, data) {
+		let persons = [[]];
+		if (!err) persons = JSON.parse(data);
+		persons.push(newPerson);
+		fs.writeFile(aFileName,JSON.stringify(persons),function(err){
+				if (err){
+					res.status(200).json(`Error adding id: ${id}`);
+				}
+				else{
+					res.status(200).json(`Person added with id: ${id}`);
+				}
+			});
+	});
+}
+
+function updatePerson(req, res) {
+	const { id, name, phone, age } = req.body
+	const aPerson = {id:parseInt(id), name, phone, age};
+	fs.readFile(aFileName, function (err, data) {
+		let persons = [[]];
+		if (!err) persons = JSON.parse(data);
+		const anIndex = persons.findIndex(p=>p.id===aPerson.id);
+		if (anIndex < 0 ) {
+			res.status(200).json(`Cannot find ID: ${id}`);
+			return;
+		}
+		persons[anIndex] = aPerson;
+		fs.writeFile(aFileName,JSON.stringify(persons),function(err){
+				if (err){
+					res.status(200).json(`Error updating id: ${id}`);
+				}
+				else{
+					res.status(200).json(`Updated id: ${id}`);
+				}
+			});
+	});
+}
+
+function deletePerson(req, res) {
+	const id = parseInt(req.body.id)
+	fs.readFile(aFileName, function (err, data) {
+		let persons = [[]];
+		if (!err) persons = JSON.parse(data);
+		const anIndex = persons.findIndex(p=>p.id===id);
+		if (anIndex < 0 ) {
+			res.status(200).json(`Cannot find ID: ${id}`);
+			return;
+		}
+		persons.splice(anIndex, 1)
+		fs.writeFile(aFileName,JSON.stringify(persons),function(err){
+				if (err){
+					res.status(200).json(`Error deleting id: ${id}`);
+				}
+				else{
+					res.status(200).json(`Deleted id: ${id}`);
+				}
+			});
+	});
+}
+
+app.get('/api/persons', (req, res) => getPersons(req, res));
+app.get('/api/persons/:id', (req, res) => getPerson(req, res));
+app.post('/api/persons', (req, res) => addPerson(req, res));
+app.put('/api/persons/:id', (req, res) => updatePerson(req, res));
+app.delete('/api/persons/:id', (req, res) => deletePerson(req, res));
+
 app.use(express.static(__dirname + "/www"));
-app.get('/api/data', isAuthenticated, function (req, res) {
-	const data = [{ name: 'Nick', age: 21}, { name: 'Maris', age: 22 }];
-	res.status(200).send(JSON.stringify(data));
-})
-app.listen(4000, function () {
+
+app.listen(port, function () {
 	console.log("Server listening at port " + port)
 })
