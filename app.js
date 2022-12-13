@@ -10,7 +10,7 @@ let aFileName = __dirname + '/www/data/persons.json';
 
 function getPersons(req, res) {
 	fs.readFile(aFileName, function (err, data) {
-		let persons = [[]];
+		let persons = [];
 		if (!err) persons = JSON.parse(data);
 		res.status(200).json(persons);
 	});
@@ -19,7 +19,7 @@ function getPersons(req, res) {
 function getPerson(req, res) {
 	const id = parseInt(req.params.id)
 	fs.readFile(aFileName, function (err, data) {
-		let persons = [[]];
+		let persons = [];
 		if (!err) persons = JSON.parse(data);
 		res.status(200).json(persons.filter(p => p.id === id));
 	});
@@ -29,7 +29,7 @@ function addPerson(req, res) {
 	const { id, name, phone, age } = req.body;
 	const newPerson = {id:parseInt(id), name, phone, age};
 	fs.readFile(aFileName, function (err, data) {
-		let persons = [[]];
+		let persons = [];
 		if (!err) persons = JSON.parse(data);
 		persons.push(newPerson);
 		fs.writeFile(aFileName,JSON.stringify(persons),function(err){
@@ -47,7 +47,7 @@ function updatePerson(req, res) {
 	const { id, name, phone, age } = req.body
 	const aPerson = {id:parseInt(id), name, phone, age};
 	fs.readFile(aFileName, function (err, data) {
-		let persons = [[]];
+		let persons = [];
 		if (!err) persons = JSON.parse(data);
 		const anIndex = persons.findIndex(p=>p.id===aPerson.id);
 		if (anIndex < 0 ) {
@@ -69,7 +69,7 @@ function updatePerson(req, res) {
 function deletePerson(req, res) {
 	const id = parseInt(req.body.id)
 	fs.readFile(aFileName, function (err, data) {
-		let persons = [[]];
+		let persons = [];
 		if (!err) persons = JSON.parse(data);
 		const anIndex = persons.findIndex(p=>p.id===id);
 		if (anIndex < 0 ) {
